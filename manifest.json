@@ -1,0 +1,21 @@
+{
+  "name": "BigCommerce Coupon Importer",
+  "author": "Setfive Consulting LLC",
+  "description": "Adds an Import button to the BigCommerce coupon codes screen.",
+  "version": "1.0",
+  "background_page": "background.html",
+  "content_scripts": [
+	{
+      "matches": ["https://*.mybigcommerce.com/*"],
+      "js": ["jquery-1.7.2.min.js", "main.js"]
+	}
+  ],
+  "icons": {
+    "128": "icon_128.png"
+  },
+  "permissions": [
+    "unlimitedStorage",
+    "notifications",
+	"tabs", "*://*/*"
+  ]
+}
