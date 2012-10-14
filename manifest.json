@@ -6,7 +6,7 @@
   "background_page": "background.html",
   "content_scripts": [
 	{
-      "matches": ["https://*.mybigcommerce.com/*"],
+      "matches": ["https://*/*"],
       "js": ["jquery-1.7.2.min.js", "main.js"]
 	}
   ],
