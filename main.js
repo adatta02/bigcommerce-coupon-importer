@@ -68,7 +68,13 @@ $(document).ready( function( $ ){
 	});
   
     $.get("/admin/index.php?ToDo=createCoupon", function(data){
-		addCouponDiv = $(data).find("#div0").html();
+		addCouponDiv = $(data).find("#div0");
+		
+		$(addCouponDiv).find("#dc1").next("a").remove();
+		$(addCouponDiv).find("#dc1").attr("name", "couponexpires");
+		$(addCouponDiv).find("#dc1").attr("placeholder", "mm/dd/yyyy");
+		
+		addCouponDiv = addCouponDiv.html();
 	});
   
 	chrome.extension.sendRequest( {msg: "hasCode"}, function(resp){
@@ -95,9 +101,13 @@ $(document).ready( function( $ ){
 		
 		$("#couponcode").val( resp.code );
 		$("#couponname").val( "IMPORTED: " + resp.code );
-		
+				
 		$.each( resp.configuredForm, function(i, val){
 			$("input[name='" + val.name + "']").val( val.value );
+			
+			if( val.name == "couponexpires" ){
+				$("#dc1").val( val.value );
+			}
 		});
 				
 		$("input[name='SaveButton1']:last").click();
