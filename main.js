@@ -1,8 +1,20 @@
 var addCouponDiv = "";
+var jsTreeConfig = "";
 
 $(document).ready( function( $ ){
 
   if( $("#frmCoupons .actionBar").length ){
+	  
+	var jsBase = "";
+	$("script").each(function(){
+		if( $(this).attr("src") 
+			&& $(this).attr("src").indexOf("/idletimer/cookie.js") > -1 ){
+			jsBase = $(this).attr("src").replace("/idletimer/cookie.js", "");
+		}
+	});
+	  
+	$.getScript(jsBase + "/jstree/jquery.jstree.js");
+	  
 	$("#frmCoupons .actionBar")
 			.html( $("#frmCoupons .actionBar").html() 
 			+ "<input type='button' id='sfBigCommImport' value='Bulk Import' />");
@@ -13,25 +25,31 @@ $(document).ready( function( $ ){
 			.append( "<form id='sfBigCommForm'>" + addCouponDiv + "</form>"
 					+ "Generate codes: <input type='text' placeholder='how many?' id='sfGenerateNum' /><input type='button' id='sfGenerateCodes' value='Generate Codes' /><br>"
 					+ "Already have codes? Enter them below (1 per line)<br><textarea style='width:500px; height: 300px' id='sfBigcCommCodes' placeholder='Enter codes here...'></textarea>" 
-					+ "<input type='button' id='sfBigCommStart' value='Start Import' />");
-		
-		$(".ContentContainer").find(".Panel:last").remove();
-		
+					+ "<br><input type='button' id='sfBigCommStart' value='Start Import' />");
+				
 		$("#couponcode").parents("tr:first").remove();
 		$("#couponname").parents("tr:first").remove();
+		$("#dc1").next("a").remove();
+		
 		$("#dc1").attr("onfocus", null);
 		$("#dc1").attr("readonly", null);
+		$("#dc1").attr("name", "couponexpires");
+		$("#dc1").attr("placeholder", "mm/dd/yyyy");
 		
 		$("#CouponMaxUsesNode, #CouponMaxUsesPerCustomerNode").show();
 		
 		$("#sfBigCommForm input:first").focus();
 		
+		jsTreeConfig.call();
+		
 		return false;
 	});
   
     $("#sfBigCommStart").live( "click", function(){
-		var form = $("#sfBigCommForm").serializeArray();	
-		chrome.extension.sendRequest({ msg: "setCodes", codes: $("#sfBigcCommCodes").val(), form: form });
+		var form = $("#sfBigCommForm").serializeArray();
+		var withCats = $("[name='catids[]']").length ? true : false;
+		
+		chrome.extension.sendRequest({ msg: "setCodes", codes: $("#sfBigcCommCodes").val(), withCats: withCats, form: form });
 		window.location = "/admin/index.php?ToDo=createCoupon";
        return false;
     });
@@ -67,14 +85,17 @@ $(document).ready( function( $ ){
 		return false;
 	});
   
-    $.get("/admin/index.php?ToDo=createCoupon", function(data){
-		addCouponDiv = $(data).find("#div0");
+    $.get("/admin/index.php?ToDo=createCoupon", function(data){	
 		
-		$(addCouponDiv).find("#dc1").next("a").remove();
-		$(addCouponDiv).find("#dc1").attr("name", "couponexpires");
-		$(addCouponDiv).find("#dc1").attr("placeholder", "mm/dd/yyyy");
+		// Should be using a Regex but couldn't get it to match :(
+		var startIndex = data.indexOf("jstree(");
+		var endIndex = data.indexOf("});", startIndex);
 		
-		addCouponDiv = addCouponDiv.html();
+		var jsTreeConfigBody = data.substr(startIndex, endIndex - startIndex + 1).replace("jstree(", "");
+		jsTreeConfigBody = 'jQuery("#catids").jstree(' + jsTreeConfigBody + ");";
+		jsTreeConfig = new Function(jsTreeConfigBody);
+		
+		addCouponDiv = $(data).find("#div0").html();				
 	});
   
 	chrome.extension.sendRequest( {msg: "hasCode"}, function(resp){
@@ -96,22 +117,33 @@ $(document).ready( function( $ ){
 			$("#content > h1").html( "No codes to import!");
 			return false;
 		}
-				
+		
+		
 		$("#content > h1").html( resp.left );
 		
 		$("#couponcode").val( resp.code );
 		$("#couponname").val( "IMPORTED: " + resp.code );
-				
+		
+		if( resp.withCats ){
+			$("[name='catids[]']").remove();
+		}
+		
 		$.each( resp.configuredForm, function(i, val){
-			$("input[name='" + val.name + "']").val( val.value );
+			
+			if( val.name == "catids[]" ){
+				$("<input type='text' name='catids[]' value='" + val.value + "' />").appendTo("#frmNews");
+			}else{
+				$("input[name='" + val.name + "']").val( val.value );
+			}
 			
 			if( val.name == "couponexpires" ){
 				$("#dc1").val( val.value );
 			}
-		});
-				
-		$("input[name='SaveButton1']:last").click();
+			
+		});				
 		
+		$("input[name='SaveButton1']:last").click();
+	
 	  });
   }
   

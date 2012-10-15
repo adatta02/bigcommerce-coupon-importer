@@ -8,6 +8,7 @@
 	var couponCodes = [ ];
 	var isStarted = false;
 	var configuredForm = [ ];
+	var withCats = false;
 	
 	chrome.extension.onConnect.addListener(function(port) {
 	
@@ -25,6 +26,7 @@
 			if( request.msg == "setCodes" && request.codes ){
 				couponCodes = request.codes.split("\n");
 				configuredForm = request.form;
+				withCats = request.withCats;
 				isStarted = true;
 			}
 			
@@ -37,6 +39,7 @@
 				resp.code = couponCodes.pop();
 				resp.configuredForm = configuredForm;
 				resp.isStarted = isStarted;
+				resp.withCats = withCats;
 			}
 				
 			sendResponse( resp );
