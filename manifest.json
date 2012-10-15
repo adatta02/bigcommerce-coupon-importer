@@ -3,7 +3,8 @@
   "author": "Setfive Consulting LLC",
   "description": "Adds an Import button to the BigCommerce coupon codes screen.",
   "version": "1.0",
-  "background_page": "background.html",
+  "manifest_version": 2,
+  "background": { "page": "background.html" },
   "content_scripts": [
 	{
       "matches": ["https://*/*"],

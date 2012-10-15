@@ -50,7 +50,7 @@ $(document).ready( function( $ ){
 			form.prodids = ids.join(",");
 		}
 		
-		chrome.extension.sendRequest({ msg: "setCodes", codes: $("#sfBigcCommCodes").val(), withCats: withCats, form: form });
+		chrome.extension.sendMessage({ msg: "setCodes", codes: $("#sfBigcCommCodes").val(), withCats: withCats, form: form });
 		window.location = "/admin/index.php?ToDo=createCoupon";
        return false;
     });
@@ -99,7 +99,7 @@ $(document).ready( function( $ ){
 		addCouponDiv = $(data).find("#div0").html();				
 	});
   
-	chrome.extension.sendRequest( {msg: "hasCode"}, function(resp){
+	chrome.extension.sendMessage( {msg: "hasCode"}, function(resp){
 		if( resp.hasCodes == true ){
 			window.location = "/admin/index.php?ToDo=createCoupon";
 		}
@@ -108,7 +108,7 @@ $(document).ready( function( $ ){
   }
   
   if( $("#couponcode").length ){
-	  chrome.extension.sendRequest( {msg: "getCode"}, function(resp){
+	  chrome.extension.sendMessage( {msg: "getCode"}, function(resp){
 		
 		if( !resp.isStarted ){
 			return false;
