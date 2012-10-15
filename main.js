@@ -5,21 +5,14 @@ $(document).ready( function( $ ){
 
   if( $("#frmCoupons .actionBar").length ){
 	  
-	var jsBase = "";
-	$("script").each(function(){
-		if( $(this).attr("src") 
-			&& $(this).attr("src").indexOf("/idletimer/cookie.js") > -1 ){
-			jsBase = $(this).attr("src").replace("/idletimer/cookie.js", "");
-		}
-	});
-	  
-	$.getScript(jsBase + "/jstree/jquery.jstree.js");
-	  
 	$("#frmCoupons .actionBar")
 			.html( $("#frmCoupons .actionBar").html() 
 			+ "<input type='button' id='sfBigCommImport' value='Bulk Import' />");
   
 	$("#sfBigCommImport").click( function(){
+				
+		addCouponDiv = addCouponDiv.replace("ToggleUsedFor(1)", "");
+		addCouponDiv = addCouponDiv.replace("ToggleUsedFor(0)", "");
 				
 		$(".ContentContainer")
 			.append( "<form id='sfBigCommForm'>" + addCouponDiv + "</form>"
@@ -48,6 +41,14 @@ $(document).ready( function( $ ){
     $("#sfBigCommStart").live( "click", function(){
 		var form = $("#sfBigCommForm").serializeArray();
 		var withCats = $("[name='catids[]']").length ? true : false;
+		
+		if( $("#ProductSelect select").length ){
+			var ids = [];
+			$("#ProductSelect select").each(function(){
+				ids.push( $(this).val() );
+			});
+			form.prodids = ids.join(",");
+		}
 		
 		chrome.extension.sendRequest({ msg: "setCodes", codes: $("#sfBigcCommCodes").val(), withCats: withCats, form: form });
 		window.location = "/admin/index.php?ToDo=createCoupon";
